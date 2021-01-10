@@ -1,5 +1,12 @@
 function fold = getstates(path,str)
 
+%function description:-
+%To get the name of the states file using the main directory using name search for 2 values
+
+%inputs:-
+%path:- the path in which sleep scoring files of all sleep trials are stored
+%str:- example {'post_trial2','post-trial2'} or {'ost-trial2','ost_trial2}
+
 A = dir(path);
 A=A(~ismember({A.name},{'.','..'})); %Remove dots
 A={A.name};
