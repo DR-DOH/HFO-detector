@@ -56,33 +56,22 @@ if isempty(v_index)
     three = [];
     four = [];
 else
-    %creating an array to get the origianal time index for the the nrem parts of the data
-    for epoch_count=1:length(v_index)
-        ti_ori{epoch_count,1} = linspace(1/fs_new, v_values(epoch_count), v_values(epoch_count) * fs_new) + v_index(epoch_count) - 1;
-    end
-    ti_ori = [ti_ori{:}].';
-    %removing outliers from time
-    if ~isempty(outliers)
-        ti_original = ti_ori(1:(outliers(1) - 1)*fs_new);
-        for j = 1:length(outliers)-1
-            ti_original = [ti_original ; ti_ori(outliers(j) * fs_new + 1 : (outliers(j+1)-1)*fs_new)];
-        end
-        ti_original = [ti_original ; ti_ori(outliers(end) * fs_new+ 1 : end)];
-    else
-        ti_original = ti_ori;
-    end
-    
+
     %loading the channel data
     parfor i = 1:length(channel)
         name = strcat(path ,'100_CH' , num2str(channel(i)), '.continuous');
-        [PFC, ~, ~] = load_open_ephys_data(name);
+        [PFC, ti, ~] = load_open_ephys_data(name);
         if pt5
             PFC_raw = PFC((pt5-1) * 2700 * fs + 1 : min(pt5 * 2700 * fs , length(PFC)));
+            ti  = ti((pt5-1) * 2700 * fs + 1 : min(pt5 * 2700 * fs , length(ti)));
         else
             PFC_raw = PFC(1:min(length(states) * fs,length(PFC)));
+            ti = ti(1:min(length(states) * fs,length(ti)));
         end
         PFC=filtfilt(b,a,PFC_raw);
         PFC=downsample(PFC,fs/fs_new);
+        ti = downsample(ti,fs/fs_new);
+
         %Convert signal to 1 sec epochs.
         e_t=1;
         e_samples=e_t*fs_new; %fs=1kHz
@@ -91,17 +80,21 @@ else
         nc=floor(ch/e_samples); %Number of epochs
         NC2=[];
         raw_all = [];
+        ti_all = [];
         
         for kk=1:nc
             NC2(:,kk)= PFC(1+e_samples*(kk-1):e_samples*kk);
             raw_all(:,kk)= PFC_raw(1+e_samples_raw*(kk-1):e_samples_raw*kk);
+            ti_all(:,kk)= ti(1+e_samples*(kk-1):e_samples*kk);
         end
         %taking only nrem epochs
         v_pfc = {};
         raw_nrem = {};
+        ti_nrem = {};
         for epoch_count=1:length(v_index)
             v_pfc{epoch_count,1}=reshape(NC2(:, v_index(epoch_count):v_index(epoch_count)+(v_values(1,epoch_count)-1)), [], 1);
             raw_nrem{epoch_count,1}=reshape(raw_all(:, v_index(epoch_count):v_index(epoch_count)+(v_values(1,epoch_count)-1)), [], 1);
+            ti_nrem{epoch_count,1}=reshape(ti_all(:, v_index(epoch_count):v_index(epoch_count)+(v_values(1,epoch_count)-1)), [], 1);
         end
         
         %Ripple detection
@@ -114,28 +107,33 @@ else
         signal2_pfc=cellfun(@(equis) times((1/0.195), equis)  ,notch3_pfc,'UniformOutput',false); %Remove convertion factor for ripple detection
         
         %%
-         
+        
         % Cortical ripples
-        signal_all = cat(1,signal2_pfc{:});
+        signal_nrem = cat(1,signal2_pfc{:});
         raw_nrem = cat(1,raw_nrem{:});
+        ti_nrem = cat(1,ti_nrem{:});
         %outlier removal
         if ~isempty(outliers)
-            signal = signal_all(1:(outliers(1) - 1)*fs_new);
+            signal = signal_nrem(1:(outliers(1) - 1)*fs_new);
+            ti_original = ti_nrem(1:(outliers(1) - 1)*fs_new);
             raw_signal = raw_nrem(1:(outliers(1) - 1)*fs);
             for j = 1:length(outliers)-1
-                signal = [signal ; signal_all(outliers(j) * fs_new + 1 : (outliers(j+1)-1)*fs_new)];
+                signal = [signal ; signal_nrem(outliers(j) * fs_new + 1 : (outliers(j+1)-1)*fs_new)];
+                ti_original = [ti_original ; ti_nrem(outliers(j) * fs_new + 1 : (outliers(j+1)-1)*fs_new)];
                 raw_signal = [raw_signal ; raw_nrem(outliers(j) * fs + 1 : (outliers(j+1)-1)*fs)];
             end
-            signal = [signal; signal_all(outliers(end) * fs_new + 1 : end)];
+            signal = [signal; signal_nrem(outliers(end) * fs_new + 1 : end)];
+            ti_original = [ti_original; ti_nrem(outliers(end) * fs_new + 1 : end)];
             raw_signal = [raw_signal ; raw_nrem(outliers(end) * fs + 1 : end)];
         else
-            signal = signal_all;
+            signal = signal_nrem;
             raw_signal = raw_nrem;
+            ti_original = ti_raw;
         end
         ti = linspace(1/fs_new,length(signal)/fs_new,length(signal)).';
         thresh_power = threshold_power(fs_new,signal,window_detect,stride,5);
         ripple_all{i} = moving_window_ripples_power(channel(i),fs,raw_signal,fs_new,signal,ti_original,ti,thresh_power,threshold_amp);
-              
+        
     end
     %finding the ripple co-occurances
     if isempty(ripple_all)
