@@ -34,8 +34,8 @@ Wn1=[320/(fs_new/2)]; % Cutoff=320 Hz
 notch1 = designfilt('bandstopiir','FilterOrder',4,'HalfPowerFrequency1',149,'HalfPowerFrequency2',151,'DesignMethod','butter','SampleRate',fs_new);
 notch2 = designfilt('bandstopiir','FilterOrder',4,'HalfPowerFrequency1',199,'HalfPowerFrequency2',201,'DesignMethod','butter','SampleRate',fs_new);
 notch3 = designfilt('bandstopiir','FilterOrder',4,'HalfPowerFrequency1',249,'HalfPowerFrequency2',251,'DesignMethod','butter','SampleRate',fs_new);
-%% 
-%NREM detection
+ 
+%% NREM detection
 states = states(1:min(length(states),2700));
 vec_bin=states;
 vec_bin(vec_bin~=3)=0;
