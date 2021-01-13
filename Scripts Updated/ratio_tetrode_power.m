@@ -20,7 +20,7 @@ warning('off','all')
 tic
 
 ripple_all = {};
-%% Defining filters
+% Defining filters
 Wn=[fs_new/fs ]; % Cutoff=fs_new/2 Hz.
 [b,a] = butter(3,Wn); %Filter coefficients for LPF.
 
@@ -35,7 +35,7 @@ notch1 = designfilt('bandstopiir','FilterOrder',4,'HalfPowerFrequency1',149,'Hal
 notch2 = designfilt('bandstopiir','FilterOrder',4,'HalfPowerFrequency1',199,'HalfPowerFrequency2',201,'DesignMethod','butter','SampleRate',fs_new);
 notch3 = designfilt('bandstopiir','FilterOrder',4,'HalfPowerFrequency1',249,'HalfPowerFrequency2',251,'DesignMethod','butter','SampleRate',fs_new);
  
-%% NREM detection
+% NREM detection
 states = states(1:min(length(states),2700));
 vec_bin=states;
 vec_bin(vec_bin~=3)=0;
@@ -43,7 +43,7 @@ vec_bin(vec_bin==3)=1;
 v2=ConsecutiveOnes(vec_bin);%Cluster one values:
 v_index=find(v2~=0);
 v_values=v2(v2~=0);
-%%
+%
 % Outlier/artifact detection
 outliers = outliers_finder(fs,path,channel,states,pt5); % Find electrical artifacts.
 outliers_aux = aux_outliers(path,fs,states,pt5);
