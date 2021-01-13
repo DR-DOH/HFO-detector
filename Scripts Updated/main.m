@@ -25,6 +25,8 @@ rat = 'RAT9';
 sd = {'SD3'};
 path_main = {'G:\Rat9\Rat_OS_Ephys_Rat9_57989_SD3_HC_13-14_05_2018\'};
 state_path = {'G:\sleep_scoring\rat9\SD3_HC\'};
+
+%Iterate through study days
 tic
 parfor loop = 1:length(path_main)
     all_sleep(path_main{loop},state_path{loop},fs,fs_new,rat,sd{loop},channels,tetrodes);
