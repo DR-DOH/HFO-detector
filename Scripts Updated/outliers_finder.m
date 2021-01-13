@@ -5,9 +5,9 @@ function outlier = outliers_finder(fs,path,channel,states,pt5)
 %states:- sleep scores of the sleep
 %pt5:- 0 if it isn't pt5 data, else the corresponding part of post trial 5 (ex: pt5 = 2 if the sleep is
 %pt5.2)
-
 %Output:-
 %Gives the electrical noise related output
+
 e_t=1;
 e_samples=e_t*fs; 
 states = states(1:min(length(states),2700));
