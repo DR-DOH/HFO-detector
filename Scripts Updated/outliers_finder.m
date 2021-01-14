@@ -17,10 +17,10 @@ vec_bin(vec_bin==3)=1;
 v2=ConsecutiveOnes(vec_bin);
 v_index=find(v2~=0);
 v_values=v2(v2~=0);
-outlier_all = zeros(1,length(find(vec_bin)==1));
+outlier_all = zeros(1,length(find(vec_bin)==1)); %Lenght of NREM
 
 
-    
+    %Iterate through channels
     parfor i = 1:length(channel)
         if isfile(strcat(path,'\100_CH',num2str(channel(i)),'.mat'))
             PFC = load(strcat(path,'\100_CH',num2str(channel(i)),'.mat'),'data');
@@ -41,10 +41,13 @@ outlier_all = zeros(1,length(find(vec_bin)==1));
         nc=floor(ch/e_samples); %Number of epochs
         epochs=[];
         
+        %Iterate through 1sec epochs (Regardless of sleep stage)
         for j=1:nc
             epochs{j}= PFC(1+e_samples*(j-1):e_samples*j);
         end
         nrem_epochs = {};
+        
+        %Iterate through NREM bouts
         for j = 1:length(v_index)
             nrem_epochs = [nrem_epochs epochs{v_index(j) : v_index(j) + v_values(j) - 1}];
         end
