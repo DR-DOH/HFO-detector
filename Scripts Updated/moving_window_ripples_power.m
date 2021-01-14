@@ -1,4 +1,4 @@
-function ripple_all = moving_window_ripples_power(channel,fs,signal,fs_new,signal_bp,timestamps_original,timestamps,threshold_power,threshold_amp)
+function ripple_all = moving_window_ripples_power(channel,fs,raw_signal,fs_new,signal_bp,timestamps_original,timestamps,threshold_power,threshold_amp)
 %Inputs:-
 %channel:- channel number
 %fs:- original sampling frequency
@@ -13,7 +13,7 @@ function ripple_all = moving_window_ripples_power(channel,fs,signal,fs_new,signa
 
 %Output:-
 %gives the ripples of on channel
-signal(isnan(signal)) = 0;
+raw_signal(isnan(raw_signal)) = 0;
 signal_bp(isnan(signal_bp)) = 0;
 
 min_duration = 0.04;    %minimum duration of the ripple
@@ -109,7 +109,7 @@ for i = 1:length(start_times)
     ripple_all(i).end_time_original = timestamps_original(end_idx);
     ripple_all(i).start_time_nrem = timestamps(st_idx);
     ripple_all(i).end_time_nrem = timestamps(end_idx);
-    ripple_all(i).signal_raw = signal(start_times(i) * fs : end_times(i) *fs);
+    ripple_all(i).signal_raw = raw_signal(start_times(i) * fs : end_times(i) *fs);
     ripple_all(i).signal_bp = temp;
     ripple_all(i).peak_time = max_times(i);
     ripple_all(i).mean_freq = meanfreq(temp,fs_new);
