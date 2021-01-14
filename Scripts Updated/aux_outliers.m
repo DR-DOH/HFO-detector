@@ -70,11 +70,13 @@ else
     NC=[];
     NC2=[];
     
+    %Iterate through 1sec epochs (Regardless of sleep stage)
     parfor kk=1:nc
         aux1_all(:,kk)= aux1(1+e_samples_raw*(kk-1):e_samples_raw*kk);
         aux2_all(:,kk)= aux2(1+e_samples_raw*(kk-1):e_samples_raw*kk);
         aux3_all(:,kk)= aux3(1+e_samples_raw*(kk-1):e_samples_raw*kk);
     end
+    %Iterate through NREM bouts
     parfor epoch_count=1:length(v_index)
         aux1_nrem{epoch_count,1}=reshape(aux1_all(:, v_index(epoch_count):v_index(epoch_count)+(v_values(1,epoch_count)-1)), [], 1);
         aux2_nrem{epoch_count,1}=reshape(aux2_all(:, v_index(epoch_count):v_index(epoch_count)+(v_values(1,epoch_count)-1)), [], 1);
@@ -92,9 +94,9 @@ else
         aux3_sd(i) = std(aux3_arr((i-1)*fs+1:i*fs));
     end
     %Cumulating the outliers from all the 3 aux channels
-    outliers_aux1 = find(isoutlier(aux1_sd,'median')==1);
-    outliers_aux2 = find(isoutlier(aux2_sd,'median')==1);
-    outliers_aux3 = find(isoutlier(aux3_sd,'median')==1);
+    %outliers_aux1 = find(isoutlier(aux1_sd,'median')==1);
+    %outliers_aux2 = find(isoutlier(aux2_sd,'median')==1);
+    %outliers_aux3 = find(isoutlier(aux3_sd,'median')==1);
     
     outliers_aux = find(isoutlier(aux1_sd,'median','ThresholdFactor',8) + isoutlier(aux2_sd,'median','ThresholdFactor',8) + isoutlier(aux3_sd,'median','ThresholdFactor',8));
 end
