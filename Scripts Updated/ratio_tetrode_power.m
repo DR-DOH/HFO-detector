@@ -20,37 +20,39 @@ warning('off','all')
 tic
 
 ripple_all = {};
-
-Wn=[fs_new/fs ]; % Cutoff=fs_new/2 Hz.
+% Defining filters
+Wn=[300/(fs_new/2) ]; % Cutoff=300 Hz to avoid influence from spikes (300-6000 Hz)
 [b,a] = butter(3,Wn); %Filter coefficients for LPF.
+b2=b;
+a2=a;
 
 Wn1=[101/(fs_new/2) 299/(fs_new/2)]; % Cutoff=101-299 Hz
 [b1,a1] = butter(3,Wn1,'bandpass'); %Filter coefficients
 
 %LPF 300 Hz:
-Wn1=[320/(fs_new/2)]; % Cutoff=320 Hz
-[b2,a2] = butter(3,Wn1); %Filter coefficients
+%Wn1=[300/(fs_new/2)]; % Cutoff=300 Hz
+%[b2,a2] = butter(3,Wn1); %Filter coefficients
 
 notch1 = designfilt('bandstopiir','FilterOrder',4,'HalfPowerFrequency1',149,'HalfPowerFrequency2',151,'DesignMethod','butter','SampleRate',fs_new);
 notch2 = designfilt('bandstopiir','FilterOrder',4,'HalfPowerFrequency1',199,'HalfPowerFrequency2',201,'DesignMethod','butter','SampleRate',fs_new);
 notch3 = designfilt('bandstopiir','FilterOrder',4,'HalfPowerFrequency1',249,'HalfPowerFrequency2',251,'DesignMethod','butter','SampleRate',fs_new);
-
+ 
+% NREM detection
 states = states(1:min(length(states),2700));
 vec_bin=states;
-outliers = outliers_finder(fs,path,channel,states,pt5);
-outliers_aux = aux_outliers(path,fs,states,pt5);
-outliers = [outliers outliers_aux];
-outliers = unique(sort(outliers));
 vec_bin(vec_bin~=3)=0;
 vec_bin(vec_bin==3)=1;
-
-
-%Cluster one values:
-v2=ConsecutiveOnes(vec_bin);
+v2=ConsecutiveOnes(vec_bin);%Cluster one values:
 v_index=find(v2~=0);
 v_values=v2(v2~=0);
+%
+% Outlier/artifact detection
+outliers = outliers_finder(fs,path,channel,states,pt5); % Find electrical artifacts. Gives samples wrt concatenated NREM 1sec epochs. 
+outliers_aux = aux_outliers(path,fs,states,pt5); % Find accelerometer artifacts. Gives samples wrt concatenated NREM 1sec epochs
+outliers = [outliers outliers_aux];
+outliers = unique(sort(outliers));
 
-if isempty(v_index)
+if isempty(v_index) % In case of no NREM
     one = [];
     two = [];
     three = [];
@@ -68,7 +70,7 @@ else
             PFC_raw = PFC(1:min(length(states) * fs,length(PFC)));
             ti = ti(1:min(length(states) * fs,length(ti)));
         end
-        PFC=filtfilt(b,a,PFC_raw);
+        PFC=filtfilt(b2,a2,PFC_raw);
         PFC=downsample(PFC,fs/fs_new);
         ti = downsample(ti,fs/fs_new);
 
@@ -108,7 +110,7 @@ else
         
         %%
         
-        % Cortical ripples
+        % Cortical High Frequency oscillations
         signal_nrem = cat(1,signal2_pfc{:});
         raw_nrem = cat(1,raw_nrem{:});
         ti_nrem = cat(1,ti_nrem{:});
