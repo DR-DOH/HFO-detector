@@ -13,7 +13,7 @@ function all_sleep(path_main,state_path,fs,fs_new,rat,sd,channels,tetrodes)
 %output:-
 %outer function to loop around in the main script so that it can save the ripple detections
 
-sleep = {{'Presleep','presleep'} , {'post_Trial1','post_trial1'} , {'post_Trial2','post_trial2'} , {'post_Trial3','post_trial3'} , {'post_Trial4','post_trial4'}} ;
+sleep = {{'Presleep','presleep'} , {'post_Trial1','post_trial1','Post_trial1','Post_Trial1'} , {'post_Trial2','post_trial2','Post_trial2','Post_Trial2'} , {'post_Trial3','post_trial3','Post_trial3','Post_Trial3'} , {'post_Trial4','post_trial4','Post_trial4','Post_Trial4'}} ;
 sleep_names = {'PRE','PT1','PT2','PT3','PT4'};
 
 %Iterate through trials.
