@@ -13,6 +13,9 @@ A={A.name};
 A=A(cellfun(@(x) ~isempty(strfind(x,'-states')),A));
 A=A(cellfun(@(x) ~isempty(strfind(x,'.mat')),A));
 fold=A(or(cellfun(@(x) ~isempty(strfind(x,str{1})),A),cellfun(@(x) ~isempty(strfind(x,str{2})),A)));
+if isempty(fold)
+fold = A(or(cellfun(@(x) ~isempty(strfind(x,str{3})),A),cellfun(@(x) ~isempty(strfind(x,str{4})),A)));
+end
 fold = cell2mat(fold);
 
 end
