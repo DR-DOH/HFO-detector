@@ -19,7 +19,7 @@ signal_bp(isnan(signal_bp)) = 0;
 min_duration = 0.04;    %minimum duration of the ripple
 max_duration = 0.150;   %maximum duration of the ripple
 
-thresh_ratio_amplitude = 0.1;    %percentage of peaks that should cross the threshold criteria
+threshold_ratio_amplitude = 0.1;    %percentage of peaks that should cross the threshold criteria
 stride_detect_time = 0.01;          %strides taken by the window during initial detection in seconds
 stride_limit_time = 0.003;          %strides taken by the window to detect the boundary of the ripple
 window_detect_time = 0.04;          %window duration for initial ripple detection in seconds
