@@ -1,4 +1,4 @@
-function ripple_all = moving_window_ripples_power(channel,fs,signal,fs_new,signal_bp,timestamps_original,timestamps,timestamps_recording,threshold_power,threshold_amp)
+function ripple_all = moving_window_ripples_power(channel,fs,raw_signal,fs_new,signal_bp,timestamps_original,timestamps,timestamps_recording,thresh_power,threshold_amp)
 %Inputs:-
 %channel:- channel number
 %fs:- original sampling frequency
@@ -7,13 +7,13 @@ function ripple_all = moving_window_ripples_power(channel,fs,signal,fs_new,signa
 %signal_bp:- bandpassed signal
 %timestamps_original:- timestamps without filtering the nrem data
 %timestamps:- timestamps that contain only nrem data
-%threshold_power:- the power criteria set to the power of the [100 300] frequency band
+%thresh_power:- the power criteria set to the power of the [100 300] frequency band
 %threshold_amp:- the amplitude threshold criteria expressed in terms of number of standard deviations
 %(if threshold_amp = 5, then amplitude threshold = mean + 5 standard deviations)
-
 %Output:-
 %gives the ripples of on channel
-signal(isnan(signal)) = 0;
+
+raw_signal(isnan(raw_signal)) = 0;
 signal_bp(isnan(signal_bp)) = 0;
 
 min_duration = 0.04;    %minimum duration of the ripple
@@ -44,10 +44,10 @@ while st < (length(timestamps) - window_detect + 1)
     power_band = bandpower(signal_bp(a:b),fs_new,[100 300]);
     power_detect = power_band;
     %checking for power detection
-    if power_band > threshold_power
+    if power_band > thresh_power
         i = 0;
         %boundary detection start
-        while power_band > threshold_power*.8
+        while power_band > thresh_power*.8
             chunk_end = a + i * stride_limit;
             chunk_start = max(chunk_end - window_limit , 1);
             if chunk_start == chunk_end
@@ -64,7 +64,7 @@ while st < (length(timestamps) - window_detect + 1)
         power_band = power_detect;
         i = 0;
         %boundary detection end
-        while power_band > threshold_power*.8
+        while power_band > thresh_power*.8
             chunk_start = b + i * stride_limit;
             chunk_end = min((chunk_start + window_limit),length(signal_bp));
             if chunk_start == chunk_end
@@ -113,7 +113,7 @@ for i = 1:length(start_times)
     ripple_all(i).end_time_recording = timestamps_recording(end_idx);
     ripple_all(i).start_time_nrem = timestamps(st_idx);
     ripple_all(i).end_time_nrem = timestamps(end_idx);
-    ripple_all(i).signal_raw = signal(start_times(i) * fs : end_times(i) *fs);
+    ripple_all(i).signal_raw = raw_signal(start_times(i) * fs : end_times(i) *fs);
     ripple_all(i).signal_bp = temp;
     ripple_all(i).peak_time = max_times(i);
     ripple_all(i).mean_freq = meanfreq(temp,fs_new);
